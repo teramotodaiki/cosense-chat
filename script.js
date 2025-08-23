@@ -101,6 +101,7 @@ const apiKey = () => {
 
   // ---- Responses API 呼び出し（ツール対応・非ストリーミング）----
   async function respondWithTools({ history, userText }) {
+    // 軽量な system メッセージ（本文は最後に付与してキャッシュ効率を上げる）
     const system = [
       "あなたはCosense(Scrapbox)上で動作するアシスタントです。",
       `ユーザーは現在「${
@@ -112,10 +113,20 @@ const apiKey = () => {
       "根拠がページに無い場合は、その旨を明示してください。",
     ].join("\n");
 
+    const currentTitle = window?.scrapbox?.Page?.title || "(無題)";
+    const pageBlock = [
+      `現在のページ: ${currentTitle}`,
+      "--- Current Page ---",
+      currentPageText(),
+      "---------------------",
+    ].join("\n");
+
     const input = [
       { role: "system", content: [{ type: "input_text", text: system }] },
       ...history,
       { role: "user", content: [{ type: "input_text", text: userText }] },
+      // 本文は一番下に付与（キャッシュ効率を向上）
+      { role: "user", content: [{ type: "input_text", text: pageBlock }] },
     ];
 
     const key = apiKey();
