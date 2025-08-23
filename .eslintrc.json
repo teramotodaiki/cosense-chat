@@ -1,0 +1,10 @@
+{
+  "env": { "browser": true, "es2021": true, "jest": true, "node": true },
+  "extends": ["eslint:recommended"],
+  "parserOptions": { "ecmaVersion": 2021, "sourceType": "script" },
+  "rules": {
+    "no-unused-vars": ["warn", { "argsIgnorePattern": "^_" }],
+    "no-undef": "error",
+    "no-empty": ["warn", { "allowEmptyCatch": true }]
+  }
+}

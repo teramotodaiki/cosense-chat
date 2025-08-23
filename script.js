@@ -459,4 +459,17 @@ const apiKey = () => {
     input.value = "";
     sendText("このページを要約して");
   });
+
+  // Expose selected internals for testing when explicitly requested
+  try {
+    if (window.__COSENSE_GPT5_TEST_HOOK__) {
+      window.__COSENSE_GPT5_TEST = {
+        respondWithTools,
+        extractText,
+        collectFunctionCalls,
+        continueResponsesWithToolOutputs,
+        waitForNonPending,
+      };
+    }
+  } catch {}
 })();
