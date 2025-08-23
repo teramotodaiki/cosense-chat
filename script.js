@@ -138,24 +138,29 @@ const apiKey = () => {
       max_output_tokens: 2048,
     });
 
+    // 最初のレスポンスが queued/in_progress の場合に備えポーリング
+    res = await waitForNonPending(res);
+    // ツール実行ループ
     res = await handleToolLoops(res);
+    // 念のため完了まで待機
+    res = await waitForNonPending(res);
+
     const text = extractText(res);
     return { raw: res, text: text || "(no text)" };
   }
 
   async function handleToolLoops(res) {
-    const id = res?.id;
-    if (!id) return res;
+    if (!res?.id) return res;
 
-    while (
-      res?.status === "requires_action" &&
-      res?.required_action?.type === "submit_tool_outputs"
-    ) {
-      const calls = res.required_action.submit_tool_outputs?.tool_calls || [];
+    let guard = 0;
+    while (guard < 8) {
+      const calls = collectFunctionCalls(res);
+      if (!calls.length) break;
+
       const outputs = [];
       for (const call of calls) {
-        const name = call?.function?.name;
-        const argsJSON = call?.function?.arguments || "{}";
+        const name = call.name;
+        const argsJSON = call.arguments || "{}";
         let args = {};
         try {
           args = JSON.parse(argsJSON);
@@ -171,43 +176,84 @@ const apiKey = () => {
         } else {
           out = `__TOOL_NOT_FOUND__ ${name}`;
         }
-        outputs.push({ tool_call_id: call.id, output: String(out) });
+        outputs.push({
+          type: "function_call_output",
+          call_id: call.call_id || call.id || call.tool_call_id,
+          output: String(out),
+        });
       }
 
-      res = await postJSON(
-        `${OPENAI_BASE_URL}/responses/${id}/submit_tool_outputs`,
-        { tool_outputs: outputs }
-      );
-
-      let guard = 0;
-      while (
-        res?.status &&
-        ["queued", "in_progress"].includes(res.status) &&
-        guard < 120
-      ) {
-        await sleep(800);
-        res = await getJSON(`${OPENAI_BASE_URL}/responses/${id}`);
-        guard++;
-      }
+      // Continue the response by passing function_call_output items as next input
+      res = await continueResponsesWithToolOutputs(res.id, outputs);
+      res = await waitForNonPending(res);
+      guard++;
     }
     return res;
+  }
+
+  function collectFunctionCalls(r) {
+    const calls = [];
+    const out = Array.isArray(r?.output) ? r.output : [];
+    for (const item of out) {
+      if (item && item.type === "function_call") {
+        calls.push(item);
+      }
+    }
+    return calls;
+  }
+
+  async function continueResponsesWithToolOutputs(responseId, function_call_outputs) {
+    // Responses API continuation: pass tool outputs as input items
+    // Each item must be: { type: 'function_call_output', call_id, output }
+    const next = await postJSON(`${OPENAI_BASE_URL}/responses`, {
+      model: OPENAI_MODEL,
+      previous_response_id: responseId,
+      input: function_call_outputs,
+    });
+    return next;
   }
 
   function extractText(r) {
     if (!r) return "";
     if (typeof r.output_text === "string") return r.output_text;
-    const out = [];
+    const collect = [];
+    const pushFromContent = (content) => {
+      for (const c of content) {
+        if (!c || typeof c !== "object") continue;
+        const t = c.text;
+        if (
+          typeof t === "string" &&
+          (c.type === "output_text" || c.type === "text")
+        ) {
+          collect.push(t);
+        }
+      }
+    };
     if (Array.isArray(r.output)) {
       for (const item of r.output) {
         if (item?.type === "message" && Array.isArray(item.content)) {
-          for (const c of item.content) {
-            if (c?.type === "output_text" && typeof c.text === "string")
-              out.push(c.text);
-          }
+          // なるべく assistant ロールのみを対象
+          if (!item.role || item.role === "assistant")
+            pushFromContent(item.content);
         }
       }
     }
-    return out.join("");
+    return collect.join("");
+  }
+
+  async function waitForNonPending(res) {
+    if (!res?.id) return res;
+    let guard = 0;
+    while (
+      res?.status &&
+      ["queued", "in_progress"].includes(res.status) &&
+      guard < 120
+    ) {
+      await sleep(800);
+      res = await getJSON(`${OPENAI_BASE_URL}/responses/${res.id}`);
+      guard++;
+    }
+    return res;
   }
 
   async function postJSON(url, body) {
