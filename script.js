@@ -260,7 +260,6 @@ const apiKey = () => {
   .cg5__dot:nth-child(3){animation-delay:.3s}
   @keyframes cg5Blink{0%,80%,100%{opacity:.25}40%{opacity:1}}
 
-  .cg5__section{opacity:.85;font-size:11px;color:${TEXT_COLOR};border-top:1px solid ${BORDER_COLOR};margin:6px 0 4px 0;padding:6px 2px 2px 2px;letter-spacing:.02em}
   .cg5__quick{display:flex;gap:6px;margin:4px 0 6px 0;background:rgba(255,255,255,.6);border:1px solid ${BORDER_COLOR};border-radius:6px;padding:6px}
   .cg5__qa{padding:6px 8px;border-radius:6px;border:1px solid ${BORDER_COLOR};background:rgba(255,255,255,.85);color:${TEXT_COLOR};cursor:pointer}
   .cg5__qa:hover{background:rgba(255,255,255,.95)}
@@ -286,10 +285,6 @@ const apiKey = () => {
 
   const msgs = document.createElement("div");
   msgs.className = "cg5__msgs";
-
-  const sectionQuick = document.createElement("div");
-  sectionQuick.className = "cg5__section";
-  sectionQuick.textContent = "クイックアクション";
 
   const quick = document.createElement("div");
   quick.className = "cg5__quick";
@@ -331,7 +326,6 @@ const apiKey = () => {
 
   panel.appendChild(desc);
   panel.appendChild(msgs);
-  panel.appendChild(sectionQuick);
   panel.appendChild(quick);
   panel.appendChild(inputRow);
   wrap.appendChild(panel);
