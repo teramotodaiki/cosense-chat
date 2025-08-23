@@ -395,6 +395,11 @@ const apiKey = () => {
   }
 
   sendBtn.addEventListener("click", send);
+  // IME 確定前 Enter で送信されないよう composition 状態を考慮
+  let composing = false;
+  input.addEventListener("compositionstart", () => (composing = true));
+  input.addEventListener("compositionend", () => (composing = false));
+
   input.addEventListener("keydown", (ev) => {
     if (
       ev.key === "Enter" &&
@@ -403,6 +408,7 @@ const apiKey = () => {
       !ev.metaKey &&
       !ev.altKey
     ) {
+      if (composing || ev.isComposing) return; // IME 未確定なら送らない
       ev.preventDefault();
       send();
     }
