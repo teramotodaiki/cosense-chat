@@ -4,11 +4,13 @@
   "private": true,
   "type": "commonjs",
   "scripts": {
-    "test": "jest",
+    "build": "vite build",
+    "test": "npm run build && jest",
     "lint": "eslint . --ext .js",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "devDependencies": {
+    "vite": "^5.4.0",
     "eslint": "^8.57.0",
     "@types/jest": "^29.5.12",
     "jest": "^29.7.0",

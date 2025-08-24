@@ -6,7 +6,7 @@ const path = require('path')
 function loadScript () {
   // reset singleton guard and module cache
   delete window.__COSENSE_GPT5_USERSCRIPT__
-  const p = path.resolve(__dirname, '..', 'script.js')
+  const p = path.resolve(__dirname, '..', 'dist', 'script.js')
   delete require.cache[p]
   return require(p)
 }
