@@ -356,6 +356,7 @@ const apiKey = () => {
   quick.className = "cg5__quick";
   const qaSummary = document.createElement("button");
   qaSummary.className = "cg5__qa";
+  qaSummary.type = "button";
   qaSummary.textContent = "このページを要約して";
   quick.appendChild(qaSummary);
 
@@ -385,6 +386,7 @@ const apiKey = () => {
   input.placeholder = "例: このページを要約して";
   const sendBtn = document.createElement("button");
   sendBtn.className = "cg5__send";
+  sendBtn.type = "button";
   sendBtn.textContent = "Send";
   // Mode dropdown (placed near top)
   const modeRow = document.createElement('div');
@@ -462,15 +464,12 @@ const apiKey = () => {
     if (bubble.querySelector('.cg5__actions')) return;
     const actions = document.createElement("div");
     actions.className = "cg5__actions";
-    actions.addEventListener('click', (ev)=>{ ev.stopPropagation(); });
-    actions.addEventListener('mousedown', (ev)=>{ ev.stopPropagation(); });
-    actions.addEventListener('touchstart', (ev)=>{ ev.stopPropagation(); }, {passive:true});
     const copyBtn = document.createElement("button");
     copyBtn.className = "cg5__copy";
     copyBtn.type = "button";
     copyBtn.textContent = "コピー";
     copyBtn.addEventListener("click", async (ev) => {
-      try { ev.preventDefault(); ev.stopPropagation(); } catch {}
+      try { ev.preventDefault(); } catch {}
       // Copy only the content text, excluding action buttons
       let txt = "";
       try {
