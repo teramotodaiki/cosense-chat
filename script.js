@@ -424,10 +424,15 @@ const apiKey = () => {
     if (bubble.querySelector('.cg5__actions')) return;
     const actions = document.createElement("div");
     actions.className = "cg5__actions";
+    actions.addEventListener('click', (ev)=>{ ev.stopPropagation(); });
+    actions.addEventListener('mousedown', (ev)=>{ ev.stopPropagation(); });
+    actions.addEventListener('touchstart', (ev)=>{ ev.stopPropagation(); }, {passive:true});
     const copyBtn = document.createElement("button");
     copyBtn.className = "cg5__copy";
+    copyBtn.type = "button";
     copyBtn.textContent = "コピー";
-    copyBtn.addEventListener("click", async () => {
+    copyBtn.addEventListener("click", async (ev) => {
+      try { ev.preventDefault(); ev.stopPropagation(); } catch {}
       // Copy only the content text, excluding action buttons
       let txt = "";
       try {
