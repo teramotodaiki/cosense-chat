@@ -513,7 +513,7 @@ const apiKey = () => {
     const text = (t || "").trim();
     if (!text) return;
     appendRow("user", text);
-    open();
+    openDrawer();
 
     const key = apiKey();
     if (!key || /REPLACE_WITH_YOUR_KEY/.test(key)) {
