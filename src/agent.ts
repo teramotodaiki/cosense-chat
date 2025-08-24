@@ -10,7 +10,7 @@ export async function respondWithTools({ history, userText, mode }: { history: R
     '根拠がページに無い場合は、その旨を明示してください。',
   ].join('\n')
 
-  // @ts-expect-error: provided by page
+  // @ts-ignore: provided by page
   const currentTitle: string = window?.scrapbox?.Page?.title || '(無題)'
   const pageBlock = [
     `現在のページ: ${currentTitle}`,
