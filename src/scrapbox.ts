@@ -2,7 +2,7 @@ import type { ScrapboxLine } from './types'
 
 export function currentProject(): string {
   try {
-    // @ts-expect-error: scrapbox is injected
+    // @ts-ignore: scrapbox is injected
     if (window.scrapbox?.Project?.name) return window.scrapbox.Project.name
   } catch {}
   const m = location.pathname.split('/').filter(Boolean)
@@ -10,7 +10,7 @@ export function currentProject(): string {
 }
 
 export function currentPageText(limit = 15000): string {
-  // @ts-expect-error: scrapbox is injected
+  // @ts-ignore: scrapbox is injected
   const lines: ScrapboxLine[] = window?.scrapbox?.Page?.lines || []
   const text = lines.map(l => l?.text || '').join('\n')
   return text.length > limit ? text.slice(0, limit) : text
