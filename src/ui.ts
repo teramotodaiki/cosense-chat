@@ -106,7 +106,7 @@ export function mountUI() {
   })
 
   qa.addEventListener('click', () => {
-    input.value = ''
+    input.value = 'このページを要約して'
     sendBtn.click()
   })
 
