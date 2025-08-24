@@ -27,6 +27,21 @@ const apiKey = () => {
   const BORDER_COLOR = "rgba(0,0,0,.18)";
   const TEXT_COLOR = "#111";
 
+  // ---- Mode (fast/thinking) and reasoning effort ----
+  const MODE_KEY = "COSENSE_GPT5_MODE";
+  let MODE = "fast";
+  try { MODE = localStorage.getItem(MODE_KEY) || "fast"; } catch {}
+  function setMode(m){
+    MODE = m === "thinking" ? "thinking" : "fast";
+    try { localStorage.setItem(MODE_KEY, MODE); } catch {}
+    const sel = document.querySelector('.cg5__select');
+    if (sel) sel.value = MODE;
+  }
+  function getReasoningPayload(){
+    const effort = MODE === 'thinking' ? 'medium' : 'minimal';
+    return { reasoning: { effort } };
+  }
+
   // 現在のプロジェクト名を推定
   function currentProject() {
     try {
@@ -136,6 +151,7 @@ const apiKey = () => {
       input,
       tools: TOOL_DEFS,
       max_output_tokens: 2048,
+      ...getReasoningPayload(),
     });
 
     // 最初のレスポンスが queued/in_progress の場合に備えポーリング
@@ -209,6 +225,7 @@ const apiKey = () => {
       model: OPENAI_MODEL,
       previous_response_id: responseId,
       input: function_call_outputs,
+      ...getReasoningPayload(),
     });
     return next;
   }
@@ -309,6 +326,10 @@ const apiKey = () => {
   .cg5__qa{padding:6px 8px;border-radius:6px;border:1px solid ${BORDER_COLOR};background:rgba(255,255,255,.85);color:${TEXT_COLOR};cursor:pointer}
   .cg5__qa:hover{background:rgba(255,255,255,.95)}
 
+  .cg5__modeRow{display:flex;gap:8px;align-items:center;margin:6px 0}
+  .cg5__label{font-size:12px;opacity:.85}
+  .cg5__select{padding:6px 8px;border-radius:6px;border:1px solid ${BORDER_COLOR};background:rgba(255,255,255,.9);color:${TEXT_COLOR};font-size:16px}
+
   .cg5__input{display:flex;gap:6px;margin-top:8px}
   .cg5__textarea{flex:1;min-height:40px;max-height:160px;padding:6px 8px;border-radius:6px;border:1px solid ${BORDER_COLOR};background:rgba(255,255,255,.9);color:${TEXT_COLOR};resize:vertical;font-size:16px}
   .cg5__send{padding:6px 10px;border-radius:6px;border:1px solid ${BORDER_COLOR};background:rgba(255,255,255,.7);color:${TEXT_COLOR};cursor:pointer;font-size:16px}
@@ -365,6 +386,22 @@ const apiKey = () => {
   const sendBtn = document.createElement("button");
   sendBtn.className = "cg5__send";
   sendBtn.textContent = "Send";
+  // Mode dropdown (placed near top)
+  const modeRow = document.createElement('div');
+  modeRow.className = 'cg5__modeRow';
+  const modeLbl = document.createElement('span');
+  modeLbl.className = 'cg5__label';
+  modeLbl.textContent = 'Mode';
+  const modeSelect = document.createElement('select');
+  modeSelect.className = 'cg5__select';
+  const optFast = document.createElement('option'); optFast.value = 'fast'; optFast.textContent = 'Fast';
+  const optThink = document.createElement('option'); optThink.value = 'thinking'; optThink.textContent = 'Thinking';
+  modeSelect.appendChild(optFast);
+  modeSelect.appendChild(optThink);
+  modeSelect.value = MODE;
+  modeSelect.addEventListener('change', ()=> setMode(modeSelect.value));
+  modeRow.appendChild(modeLbl);
+  modeRow.appendChild(modeSelect);
   const inputRow = document.createElement("div");
   inputRow.className = "cg5__input";
   inputRow.appendChild(input);
@@ -372,6 +409,7 @@ const apiKey = () => {
 
   panel.appendChild(desc);
   panel.appendChild(msgs);
+  panel.insertBefore(modeRow, msgs);
   panel.appendChild(quick);
   panel.appendChild(inputRow);
   wrap.appendChild(panel);
