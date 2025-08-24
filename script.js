@@ -403,17 +403,17 @@ const apiKey = () => {
   }
   detectHeader();
 
-  const open = () => {
+  const openDrawer = () => {
     wrap.dataset.open = "true";
     toggle.textContent = "<";
     input.focus();
   };
-  const close = () => {
+  const closeDrawer = () => {
     wrap.dataset.open = "false";
     toggle.textContent = ">";
   };
   toggle.addEventListener("click", () => {
-    wrap.dataset.open === "true" ? close() : open();
+    wrap.dataset.open === "true" ? closeDrawer() : openDrawer();
   });
 
   const history = [];
@@ -428,19 +428,36 @@ const apiKey = () => {
     copyBtn.className = "cg5__copy";
     copyBtn.textContent = "コピー";
     copyBtn.addEventListener("click", async () => {
+      // Copy only the content text, excluding action buttons
+      let txt = "";
       try {
-        await navigator.clipboard.writeText(bubble.textContent || "");
+        const clone = bubble.cloneNode(true);
+        const acts = clone.querySelectorAll('.cg5__actions');
+        acts.forEach(el => el.remove());
+        txt = clone.textContent || "";
+      } catch {}
+      try {
+        await navigator.clipboard.writeText(txt);
         const old = copyBtn.textContent;
         copyBtn.textContent = "コピーしました";
         setTimeout(() => (copyBtn.textContent = old), 1200);
       } catch {
         const range = document.createRange();
-        range.selectNodeContents(bubble);
+        const clone = bubble.cloneNode(true);
+        const acts = clone.querySelectorAll('.cg5__actions');
+        acts.forEach(el => el.remove());
+        const temp = document.createElement('div');
+        temp.style.position = 'fixed';
+        temp.style.left = '-9999px';
+        temp.textContent = clone.textContent || '';
+        document.body.appendChild(temp);
+        range.selectNodeContents(temp);
         const sel = window.getSelection();
         sel.removeAllRanges();
         sel.addRange(range);
         try { document.execCommand("copy"); } catch {}
         sel.removeAllRanges();
+        temp.remove();
       }
     });
     actions.appendChild(copyBtn);
