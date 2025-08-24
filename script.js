@@ -280,18 +280,22 @@ const apiKey = () => {
 
   // ---- UI（左ドロワ）----
   const STYLE = `
-  .cg5__wrap{position:fixed;inset:0 auto 0 0;z-index:2147483000;width:380px;max-width:90vw;transform:translateX(-340px);transition:transform .2s ease;}
+  :root{--cg5-header-offset:0px}
+  .cg5__wrap{position:fixed;inset:var(--cg5-header-offset) auto 0 0;z-index:2147483000;width:380px;max-width:90vw;transform:translateX(-340px);transition:transform .2s ease;}
   .cg5__wrap[data-open="true"]{transform:none}
-  .cg5__panel{box-sizing:border-box;height:100vh;background:${HEADER_COLOR};backdrop-filter:saturate(1.2) blur(4px);color:${TEXT_COLOR};border-right:1px solid ${BORDER_COLOR};padding:10px 10px 12px 10px;display:flex;flex-direction:column;font:13px/1.6 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
+  .cg5__panel{box-sizing:border-box;height:calc(100dvh - var(--cg5-header-offset));background:${HEADER_COLOR};backdrop-filter:saturate(1.2) blur(4px);color:${TEXT_COLOR};border-right:1px solid ${BORDER_COLOR};padding:10px 10px 12px 10px;display:flex;flex-direction:column;font:13px/1.6 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;padding-top:calc(10px + env(safe-area-inset-top));padding-bottom:calc(12px + env(safe-area-inset-bottom));-webkit-overflow-scrolling:touch}
   .cg5__toggle{position:absolute;top:8px;right:-24px;width:24px;height:48px;background:${HEADER_COLOR};border:1px solid ${BORDER_COLOR};border-left:none;border-radius:0 6px 6px 0;color:${TEXT_COLOR};display:flex;align-items:center;justify-content:center;cursor:pointer;user-select:none}
 
   .cg5__msgs{flex:1;overflow:auto;border:1px solid ${BORDER_COLOR};background:rgba(255,255,255,.55);border-radius:6px;padding:8px;color:${TEXT_COLOR};display:flex;flex-direction:column}
   .cg5__row{display:flex;margin:6px 0}
   .cg5__row.-user{justify-content:flex-end}
   .cg5__row.-asst{justify-content:flex-start}
-  .cg5__msg{max-width:90%;white-space:pre-wrap;padding:8px 10px;border-radius:12px;border:1px solid ${BORDER_COLOR};background:rgba(255,255,255,.9)}
+  .cg5__msg{max-width:90%;white-space:pre-wrap;padding:8px 10px;border-radius:12px;border:1px solid ${BORDER_COLOR};background:rgba(255,255,255,.9);position:relative}
   .cg5__msg.-user{background:rgba(255,255,255,.95)}
   .cg5__msg.-asst{background:rgba(255,255,255,.7)}
+  .cg5__actions{display:flex;gap:6px;margin-top:4px}
+  .cg5__copy{padding:4px 6px;border-radius:6px;border:1px solid ${BORDER_COLOR};background:rgba(255,255,255,.85);color:${TEXT_COLOR};cursor:pointer;font-size:12px}
+  .cg5__copy:hover{background:rgba(255,255,255,.95)}
 
   /* Loading dots */
   .cg5__msg.-pending{opacity:.9}
@@ -306,8 +310,8 @@ const apiKey = () => {
   .cg5__qa:hover{background:rgba(255,255,255,.95)}
 
   .cg5__input{display:flex;gap:6px;margin-top:8px}
-  .cg5__textarea{flex:1;min-height:40px;max-height:160px;padding:6px 8px;border-radius:6px;border:1px solid ${BORDER_COLOR};background:rgba(255,255,255,.9);color:${TEXT_COLOR};resize:vertical}
-  .cg5__send{padding:6px 10px;border-radius:6px;border:1px solid ${BORDER_COLOR};background:rgba(255,255,255,.7);color:${TEXT_COLOR};cursor:pointer}
+  .cg5__textarea{flex:1;min-height:40px;max-height:160px;padding:6px 8px;border-radius:6px;border:1px solid ${BORDER_COLOR};background:rgba(255,255,255,.9);color:${TEXT_COLOR};resize:vertical;font-size:16px}
+  .cg5__send{padding:6px 10px;border-radius:6px;border:1px solid ${BORDER_COLOR};background:rgba(255,255,255,.7);color:${TEXT_COLOR};cursor:pointer;font-size:16px}
   .cg5__send:hover{background:rgba(255,255,255,.85)}
   .cg5__desc{opacity:.8;margin:6px 0 4px 0;font-size:12px}
   `;
@@ -348,6 +352,7 @@ const apiKey = () => {
     } else {
       bubble.textContent = text;
     }
+    if (role === "asst" && !opts.pending) attachCopyActions(bubble);
     row.appendChild(bubble);
     msgs.appendChild(row);
     msgs.scrollTop = msgs.scrollHeight;
@@ -377,6 +382,26 @@ const apiKey = () => {
   document.head.appendChild(style);
 
   document.body.appendChild(wrap);
+  
+  // Header offset handling (avoid overlapping project/header area)
+  function applyOffset(px){
+    document.documentElement.style.setProperty("--cg5-header-offset", `${Math.max(0, px|0)}px`);
+  }
+  function detectHeader(){
+    try{
+      const cand = ["header","#header",".header",".appHeader",".AppHeader",".navbar",".navigation",".global-header",".site-header"];
+      let maxBottom = 0;
+      for(const sel of cand){
+        const el = document.querySelector(sel);
+        if(!el) continue;
+        const r = el.getBoundingClientRect();
+        if(r.top <= 0 && r.bottom > maxBottom) maxBottom = r.bottom;
+      }
+      const px = Math.round(maxBottom);
+      if(px > 0){ applyOffset(px); }
+    }catch{}
+  }
+  detectHeader();
 
   const open = () => {
     wrap.dataset.open = "true";
@@ -392,6 +417,37 @@ const apiKey = () => {
   });
 
   const history = [];
+
+  function attachCopyActions(bubble){
+    if (!bubble) return;
+    // Avoid duplicating if already attached
+    if (bubble.querySelector('.cg5__actions')) return;
+    const actions = document.createElement("div");
+    actions.className = "cg5__actions";
+    const copyBtn = document.createElement("button");
+    copyBtn.className = "cg5__copy";
+    copyBtn.textContent = "コピー";
+    copyBtn.addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(bubble.textContent || "");
+        const old = copyBtn.textContent;
+        copyBtn.textContent = "コピーしました";
+        setTimeout(() => (copyBtn.textContent = old), 1200);
+      } catch {
+        const range = document.createRange();
+        range.selectNodeContents(bubble);
+        const sel = window.getSelection();
+        sel.removeAllRanges();
+        sel.addRange(range);
+        try { document.execCommand("copy"); } catch {}
+        sel.removeAllRanges();
+      }
+    });
+    actions.appendChild(copyBtn);
+    const actionsWrap = document.createElement("div");
+    actionsWrap.appendChild(actions);
+    bubble.appendChild(actionsWrap);
+  }
 
   async function sendText(t) {
     const text = (t || "").trim();
@@ -422,9 +478,11 @@ const apiKey = () => {
       });
       pendingBubble.classList.remove("-pending");
       pendingBubble.textContent = answer;
+      attachCopyActions(pendingBubble);
     } catch (e) {
       pendingBubble.classList.remove("-pending");
       pendingBubble.textContent = `Error: ${(e && e.message) || e}`;
+      attachCopyActions(pendingBubble);
     }
   }
 
