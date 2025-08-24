@@ -4,11 +4,10 @@ const OPENAI_BASE_URL = 'https://api.openai.com/v1'
 const OPENAI_MODEL = 'gpt-5'
 
 function apiKey(): string {
-  try {
-    return (localStorage && (localStorage as any).OPENAI_API_KEY) || (window as any).OPENAI_API_KEY || ''
-  } catch {
-    return ''
-  }
+  // Injected at build time via Vite .env (VITE_OPENAI_API_KEY)
+  // No fallback to window/localStorage.
+  const key = (import.meta as any).env?.VITE_OPENAI_API_KEY as string | undefined
+  return key || ''
 }
 
 export type Role = 'system' | 'user' | 'assistant'
@@ -21,7 +20,7 @@ export function reasoningPayload(mode: 'fast' | 'thinking') {
 
 export async function responsesCreate(input: ResponsesMessageItem[], mode: 'fast' | 'thinking'): Promise<ResponsesData> {
   const key = apiKey()
-  if (!key) throw new Error('OPENAI_API_KEY not set')
+  if (!key) throw new Error('OPENAI_API_KEY not set (set VITE_OPENAI_API_KEY in .env)')
   const body: any = {
     model: OPENAI_MODEL,
     input,
@@ -41,7 +40,7 @@ export async function responsesCreate(input: ResponsesMessageItem[], mode: 'fast
 
 export async function responsesContinue(previousId: string, function_call_outputs: ResponsesMessageItem[], mode: 'fast' | 'thinking'): Promise<ResponsesData> {
   const key = apiKey()
-  if (!key) throw new Error('OPENAI_API_KEY not set')
+  if (!key) throw new Error('OPENAI_API_KEY not set (set VITE_OPENAI_API_KEY in .env)')
   const body: any = {
     model: OPENAI_MODEL,
     previous_response_id: previousId,
@@ -62,7 +61,7 @@ export async function responsesContinue(previousId: string, function_call_output
 
 export async function responsesGet(id: string): Promise<ResponsesData> {
   const key = apiKey()
-  if (!key) throw new Error('OPENAI_API_KEY not set')
+  if (!key) throw new Error('OPENAI_API_KEY not set (set VITE_OPENAI_API_KEY in .env)')
   const r = await fetch(`${OPENAI_BASE_URL}/responses/${id}`, {
     method: 'GET',
     headers: { 'Authorization': `Bearer ${key}` },

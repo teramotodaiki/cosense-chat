@@ -13,5 +13,4 @@ window.scrapbox = {
   },
 };
 
-// API key so the code path doesn’t error out
-window.localStorage.setItem('OPENAI_API_KEY', 'test-key');
+// API key is provided by Vite build-time .env (VITE_OPENAI_API_KEY)

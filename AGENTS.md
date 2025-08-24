@@ -18,3 +18,4 @@ Cosense の UserScript で、OpenAI API の GPT-5 を使ったエージェント
 # 注意事項
 
 - タスクを終えたら必ず typecheck, lint, test, lint を実行してください
+- コメントには「コードをこのように変更した」という過程を書かないでください
