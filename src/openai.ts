@@ -1,6 +1,7 @@
 import type { ResponsesData, ResponsesMessageItem } from './types'
 
-const OPENAI_BASE_URL = 'https://api.openai.com/v1'
+// Allow overriding via Vite env: VITE_OPENAI_API_BASE_URL
+const OPENAI_BASE_URL: string = ((import.meta as any).env?.VITE_OPENAI_API_BASE_URL as string | undefined) || 'https://api.openai.com/v1'
 const OPENAI_MODEL = 'gpt-5'
 
 function apiKey(): string {
