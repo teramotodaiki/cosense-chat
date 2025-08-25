@@ -54,18 +54,26 @@ export function mountUI() {
 
   // mode dropdown
   let MODE: 'fast' | 'thinking' = 'fast'
-  try { MODE = (localStorage.getItem('COSENSE_GPT5_MODE') as any) || 'fast' } catch {}
+  try {
+    MODE = (localStorage.getItem('COSENSE_GPT5_MODE') as any) || 'fast'
+  } catch {}
   const modeRow = el('div', 'cg5__modeRow')
   const modeLbl = el('span', 'cg5__label', 'Mode')
   const modeSelect = document.createElement('select')
   modeSelect.className = 'cg5__select'
-  const o1 = document.createElement('option'); o1.value = 'fast'; o1.textContent = 'Fast'
-  const o2 = document.createElement('option'); o2.value = 'thinking'; o2.textContent = 'Thinking'
+  const o1 = document.createElement('option')
+  o1.value = 'fast'
+  o1.textContent = 'Fast'
+  const o2 = document.createElement('option')
+  o2.value = 'thinking'
+  o2.textContent = 'Thinking'
   modeSelect.append(o1, o2)
   modeSelect.value = MODE
   modeSelect.addEventListener('change', () => {
-    MODE = (modeSelect.value === 'thinking') ? 'thinking' : 'fast'
-    try { localStorage.setItem('COSENSE_GPT5_MODE', MODE) } catch {}
+    MODE = modeSelect.value === 'thinking' ? 'thinking' : 'fast'
+    try {
+      localStorage.setItem('COSENSE_GPT5_MODE', MODE)
+    } catch {}
   })
   modeRow.append(modeLbl, modeSelect)
 
@@ -76,9 +84,18 @@ export function mountUI() {
   wrap.append(panel, toggle)
   document.body.appendChild(wrap)
 
-  const openDrawer = () => { wrap.dataset.open = 'true'; toggle.textContent = '<'; input.focus() }
-  const closeDrawer = () => { wrap.dataset.open = 'false'; toggle.textContent = '>' }
-  toggle.addEventListener('click', () => { wrap.dataset.open === 'true' ? closeDrawer() : openDrawer() })
+  const openDrawer = () => {
+    wrap.dataset.open = 'true'
+    toggle.textContent = '<'
+    input.focus()
+  }
+  const closeDrawer = () => {
+    wrap.dataset.open = 'false'
+    toggle.textContent = '>'
+  }
+  toggle.addEventListener('click', () => {
+    wrap.dataset.open === 'true' ? closeDrawer() : openDrawer()
+  })
 
   sendBtn.addEventListener('click', async () => {
     const t = (input.value || '').trim()
@@ -112,12 +129,14 @@ export function mountUI() {
 
   // IME-aware Enter submit
   let composing = false
-  input.addEventListener('compositionstart', () => { composing = true })
-  input.addEventListener('compositionend', () => { composing = false })
+  input.addEventListener('compositionstart', () => {
+    composing = true
+  })
+  input.addEventListener('compositionend', () => {
+    composing = false
+  })
   input.addEventListener('keydown', (ev: KeyboardEvent) => {
-    if (
-      ev.key === 'Enter' && !ev.shiftKey && !ev.ctrlKey && !ev.metaKey && !ev.altKey
-    ) {
+    if (ev.key === 'Enter' && !ev.shiftKey && !ev.ctrlKey && !ev.metaKey && !ev.altKey) {
       if (composing || (ev as any).isComposing) return
       ev.preventDefault()
       sendBtn.click()
@@ -152,14 +171,18 @@ function setAssistantContent(bubble: HTMLElement, text: string) {
     const actions = el('div', 'cg5__actions')
     const copy = el('button', 'cg5__copy', 'コピー') as HTMLButtonElement
     copy.type = 'button'
-    copy.addEventListener('click', async (ev) => {
-      try { ev.preventDefault() } catch {}
+    copy.addEventListener('click', async ev => {
+      try {
+        ev.preventDefault()
+      } catch {}
       const txt = content?.textContent || ''
       try {
         await navigator.clipboard.writeText(txt)
         const old = copy.textContent || ''
         copy.textContent = 'コピーしました'
-        setTimeout(() => { copy.textContent = old }, 1200)
+        setTimeout(() => {
+          copy.textContent = old
+        }, 1200)
       } catch {}
     })
     actions.appendChild(copy)

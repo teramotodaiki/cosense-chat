@@ -1,10 +1,5 @@
 // Global Scrapbox typing (approximate but comprehensive for our usage)
-export type ScrapboxUser = {
-  id?: string
-  name?: string
-  displayName?: string
-  photo?: string
-}
+export type ScrapboxUser = { id?: string; name?: string; displayName?: string; photo?: string }
 
 export type ScrapboxLine = {
   id?: string
@@ -23,15 +18,9 @@ export type ScrapboxPage = {
   user?: ScrapboxUser
 }
 
-export type ScrapboxProject = {
-  name: string
-  displayName?: string
-}
+export type ScrapboxProject = { name: string; displayName?: string }
 
-export type Scrapbox = {
-  Project: ScrapboxProject
-  Page: ScrapboxPage
-}
+export type Scrapbox = { Project: ScrapboxProject; Page: ScrapboxPage }
 
 declare global {
   interface Window {
@@ -44,4 +33,3 @@ declare global {
 }
 
 export {}
-

@@ -7,4 +7,3 @@ declare global {
     scrapbox?: any
   }
 }
-

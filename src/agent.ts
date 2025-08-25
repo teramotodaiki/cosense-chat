@@ -3,11 +3,19 @@ import { responsesContinue, responsesCreate, responsesGet } from './openai'
 import { fetchScrapboxPageText, currentPageText } from './scrapbox'
 import { extractLinkTitles } from './util'
 
-export async function respondWithTools({ history, userText, mode }: { history: ResponsesMessageItem[]; userText: string; mode: 'fast' | 'thinking' }): Promise<{ raw: ResponsesData; text: string }>{
+export async function respondWithTools({
+  history,
+  userText,
+  mode
+}: {
+  history: ResponsesMessageItem[]
+  userText: string
+  mode: 'fast' | 'thinking'
+}): Promise<{ raw: ResponsesData; text: string }> {
   const system = [
     'あなたはCosense(Scrapbox)上で動作するアシスタントです。',
     "必要に応じて 'get_page' ツールでリンク先ページの本文を取得してから回答してください。",
-    '根拠がページに無い場合は、その旨を明示してください。',
+    '根拠がページに無い場合は、その旨を明示してください。'
   ].join('\n')
 
   // @ts-ignore: provided by page
@@ -16,7 +24,7 @@ export async function respondWithTools({ history, userText, mode }: { history: R
     `現在のページ: ${currentTitle}`,
     '--- Current Page ---',
     currentPageText(),
-    '---------------------',
+    '---------------------'
   ].join('\n')
 
   // Prefetch top 5 linked pages (best-effort, no try-catch flood)
@@ -26,7 +34,11 @@ export async function respondWithTools({ history, userText, mode }: { history: R
     { role: 'system', type: 'message', content: [{ type: 'input_text', text: system }] },
     ...history,
     { role: 'user', type: 'message', content: [{ type: 'input_text', text: userText }] },
-    { role: 'user', type: 'message', content: [{ type: 'input_text', text: pageBlock + (linkedSection ? ('\n\n' + linkedSection) : '') }] },
+    {
+      role: 'user',
+      type: 'message',
+      content: [{ type: 'input_text', text: pageBlock + (linkedSection ? '\n\n' + linkedSection : '') }]
+    }
   ]
 
   let res = await responsesCreate(input, mode)
@@ -60,13 +72,18 @@ async function handleToolLoops(res: ResponsesData, mode: 'fast' | 'thinking'): P
       const name = call.name
       const argsJSON = call.arguments || '{}'
       let args: any = {}
-      try { args = JSON.parse(argsJSON) } catch {}
+      try {
+        args = JSON.parse(argsJSON)
+      } catch {}
       if (name === 'get_page') {
         const body = await fetchScrapboxPageText(String(args?.title || ''))
-        outputs.push({ type: 'function_call_output', call_id: call.call_id || call.tool_call_id, // @ts-ignore – test expects `output`
+        outputs.push({
+          type: 'function_call_output',
+          call_id: call.call_id || call.tool_call_id, // @ts-ignore – test expects `output`
           // eslint-disable-next-line @typescript-eslint/ban-ts-comment
           // @ts-expect-error: Responses API accepts `output` in our tests
-          output: String(body) })
+          output: String(body)
+        })
       }
     }
 

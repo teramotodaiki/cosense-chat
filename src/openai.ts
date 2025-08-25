@@ -1,7 +1,8 @@
 import type { ResponsesData, ResponsesMessageItem } from './types'
 
 // Allow overriding via Vite env: VITE_OPENAI_API_BASE_URL
-const OPENAI_BASE_URL: string = ((import.meta as any).env?.VITE_OPENAI_API_BASE_URL as string | undefined) || 'https://api.openai.com/v1'
+const OPENAI_BASE_URL: string =
+  ((import.meta as any).env?.VITE_OPENAI_API_BASE_URL as string | undefined) || 'https://api.openai.com/v1'
 const OPENAI_MODEL = 'gpt-5'
 
 function apiKey(): string {
@@ -19,42 +20,39 @@ export function reasoningPayload(mode: 'fast' | 'thinking') {
   return { reasoning: { effort } }
 }
 
-export async function responsesCreate(input: ResponsesMessageItem[], mode: 'fast' | 'thinking'): Promise<ResponsesData> {
+export async function responsesCreate(
+  input: ResponsesMessageItem[],
+  mode: 'fast' | 'thinking'
+): Promise<ResponsesData> {
   const key = apiKey()
   if (!key) throw new Error('OPENAI_API_KEY not set (set VITE_OPENAI_API_KEY in .env)')
-  const body: any = {
-    model: OPENAI_MODEL,
-    input,
-    ...reasoningPayload(mode),
-  }
+  const body: any = { model: OPENAI_MODEL, input, ...reasoningPayload(mode) }
   const r = await fetch(`${OPENAI_BASE_URL}/responses`, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${key}`,
-    },
-    body: JSON.stringify(body),
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${key}` },
+    body: JSON.stringify(body)
   })
   if (!r.ok) throw new Error(`HTTP ${r.status}: ${await r.text()}`)
   return r.json()
 }
 
-export async function responsesContinue(previousId: string, function_call_outputs: ResponsesMessageItem[], mode: 'fast' | 'thinking'): Promise<ResponsesData> {
+export async function responsesContinue(
+  previousId: string,
+  function_call_outputs: ResponsesMessageItem[],
+  mode: 'fast' | 'thinking'
+): Promise<ResponsesData> {
   const key = apiKey()
   if (!key) throw new Error('OPENAI_API_KEY not set (set VITE_OPENAI_API_KEY in .env)')
   const body: any = {
     model: OPENAI_MODEL,
     previous_response_id: previousId,
     input: function_call_outputs,
-    ...reasoningPayload(mode),
+    ...reasoningPayload(mode)
   }
   const r = await fetch(`${OPENAI_BASE_URL}/responses`, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${key}`,
-    },
-    body: JSON.stringify(body),
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${key}` },
+    body: JSON.stringify(body)
   })
   if (!r.ok) throw new Error(`HTTP ${r.status}: ${await r.text()}`)
   return r.json()
@@ -65,7 +63,7 @@ export async function responsesGet(id: string): Promise<ResponsesData> {
   if (!key) throw new Error('OPENAI_API_KEY not set (set VITE_OPENAI_API_KEY in .env)')
   const r = await fetch(`${OPENAI_BASE_URL}/responses/${id}`, {
     method: 'GET',
-    headers: { 'Authorization': `Bearer ${key}` },
+    headers: { Authorization: `Bearer ${key}` }
   })
   if (!r.ok) throw new Error(`HTTP ${r.status}: ${await r.text()}`)
   return r.json()

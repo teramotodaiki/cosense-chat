@@ -7,21 +7,18 @@ test('user can send message and receive final response', async ({ page }) => {
     const calls = []
     window.__FETCH_CALLS__ = calls
 
-    function mkRes (status, text) {
+    function mkRes(status, text) {
       return {
         ok: status >= 200 && status < 300,
         status,
         text: async () => text,
-        json: async () => { throw new Error('not json') },
+        json: async () => {
+          throw new Error('not json')
+        }
       }
     }
-    function mkJson (status, obj) {
-      return {
-        ok: status >= 200 && status < 300,
-        status,
-        text: async () => JSON.stringify(obj),
-        json: async () => obj,
-      }
+    function mkJson(status, obj) {
+      return { ok: status >= 200 && status < 300, status, text: async () => JSON.stringify(obj), json: async () => obj }
     }
 
     window.fetch = async (url, init = {}) => {
@@ -47,22 +44,17 @@ test('user can send message and receive final response', async ({ page }) => {
                 status: 'completed',
                 name: 'get_page',
                 call_id: 'call_1',
-                arguments: JSON.stringify({ title: 'Home' }),
-              },
-            ],
+                arguments: JSON.stringify({ title: 'Home' })
+              }
+            ]
           })
         }
         return mkJson(200, {
           id: 'resp_final',
           status: 'completed',
           output: [
-            {
-              id: 'm1',
-              type: 'message',
-              role: 'assistant',
-              content: [{ type: 'output_text', text: '最終回答です' }],
-            },
-          ],
+            { id: 'm1', type: 'message', role: 'assistant', content: [{ type: 'output_text', text: '最終回答です' }] }
+          ]
         })
       }
 

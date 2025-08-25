@@ -12,10 +12,4 @@ export type ResponsesMessageItem = {
   content?: { type: 'text' | 'input_text' | 'output_text'; text: string }[]
 }
 
-export type ResponsesData = {
-  id: string
-  status?: string
-  output_text?: string
-  output?: ResponsesMessageItem[]
-}
-
+export type ResponsesData = { id: string; status?: string; output_text?: string; output?: ResponsesMessageItem[] }
