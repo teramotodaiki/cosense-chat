@@ -4,6 +4,7 @@
   "private": true,
   "type": "commonjs",
   "scripts": {
+    "pretest": "playwright install --with-deps chromium",
     "build": "vite build",
     "test": "vitest run && VITE_OPENAI_API_KEY=test vite build && playwright test __tests__/script.test.js",
     "lint": "eslint . --ext .js",
