@@ -44,6 +44,11 @@ export function mountUI() {
   const toggle = el('div', 'cg5__toggle', '>')
   const msgs = el('div', 'cg5__msgs')
   const quick = el('div', 'cg5__quick')
+  const updateQuick = () => {
+    quick.style.display = msgs.children.length ? 'none' : ''
+  }
+  updateQuick()
+  new MutationObserver(updateQuick).observe(msgs, { childList: true })
   const qa = el('button', 'cg5__qa', 'このページを要約して') as HTMLButtonElement
   qa.type = 'button'
   quick.appendChild(qa)
