@@ -5,9 +5,9 @@ export function mountUI() {
   ;(window as any).__COSENSE_GPT5_USERSCRIPT__ = true
 
   const STYLE = `
-  .cg5__wrap{position:fixed;inset:0 auto 0 0;z-index:2147483000;width:380px;max-width:90vw;transform:translateX(-340px);transition:transform .2s ease}
+  .cg5__wrap{position:fixed;inset:var(--cg5-top,40px) auto 0 0;z-index:2147483000;width:380px;max-width:90vw;transform:translateX(-340px);transition:transform .2s ease}
   .cg5__wrap[data-open="true"]{transform:none}
-  .cg5__panel{box-sizing:border-box;height:100dvh;background:rgba(196,197,202,.7);backdrop-filter:saturate(1.2) blur(4px);color:#111;border-right:1px solid rgba(0,0,0,.18);padding:10px 10px 12px 10px;display:flex;flex-direction:column;font:13px/1.6 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
+  .cg5__panel{box-sizing:border-box;height:100%;background:rgba(196,197,202,.7);backdrop-filter:saturate(1.2) blur(4px);color:#111;border-right:1px solid rgba(0,0,0,.18);padding:10px 10px 12px 10px;display:flex;flex-direction:column;font:13px/1.6 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
   .cg5__toggle{position:absolute;top:8px;right:-24px;width:24px;height:48px;background:rgba(196,197,202,.7);border:1px solid rgba(0,0,0,.18);border-left:none;border-radius:0 6px 6px 0;color:#111;display:flex;align-items:center;justify-content:center;cursor:pointer}
   .cg5__msgs{flex:1;overflow:auto;border:1px solid rgba(0,0,0,.18);background:rgba(255,255,255,.55);border-radius:6px;padding:8px;color:#111;display:flex;flex-direction:column}
   .cg5__row{display:flex;margin:6px 0}
