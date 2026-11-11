@@ -77,7 +77,7 @@ export function mountUI() {
   })
   modeRow.append(modeLbl, modeSelect)
 
-  const desc = el('div', '', 'このページと必要なリンク先を読んで回答します（GPT-5）')
+  const desc = el('div', '', 'このページと必要なリンク先を読んで回答します（GPT-5.6 Sol）')
   const inputRow = el('div', 'cg5__input')
   inputRow.append(input, sendBtn)
   panel.append(desc, modeRow, quick, msgs, inputRow)

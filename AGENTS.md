@@ -1,4 +1,4 @@
-Cosense の UserScript で、OpenAI API の GPT-5 を使ったエージェントシステムです。
+Cosense の UserScript で、OpenAI API の GPT-5.6 Sol を使ったエージェントシステムです。
 
 # UserScript
 
@@ -12,7 +12,7 @@ Cosense の UserScript で、OpenAI API の GPT-5 を使ったエージェント
 - 画面の左側に drawer でチャット画面を置く
 - ページの情報を window.scrapbox.Page.lines から取得して、それを読んで答える
 - リンク先のページを取得する tool を持ち、必要に応じてリンク先を読み取る
-- OpenAI API の Responses API で、ブラウザから GPT-5 を利用
+- OpenAI API の Responses API で、ブラウザから GPT-5.6 Sol を利用
 - npm は使わない
 
 # 注意事項

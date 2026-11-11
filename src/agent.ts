@@ -1,6 +1,6 @@
-import type { ResponsesData, ResponsesMessageItem } from './types'
 import { responsesContinue, responsesCreate, responsesGet } from './openai'
-import { fetchScrapboxPageText, currentPageText } from './scrapbox'
+import { currentPageText, fetchScrapboxPageText } from './scrapbox'
+import type { ResponsesData, ResponsesMessageItem } from './types'
 import { extractLinkTitles } from './util'
 
 export async function respondWithTools({
