@@ -2,20 +2,20 @@ import type { ResponsesData, ResponsesMessageItem } from './types'
 
 // Allow overriding via Vite env: VITE_OPENAI_API_BASE_URL
 const OPENAI_BASE_URL: string =
-  ((import.meta as any).env?.VITE_OPENAI_API_BASE_URL as string | undefined) || 'https://api.openai.com/v1'
-const OPENAI_MODEL = 'gpt-5'
+  (import.meta.env.VITE_OPENAI_API_BASE_URL as string | undefined) || 'https://api.openai.com/v1'
+const OPENAI_MODEL = 'gpt-5.6-sol'
 
 function apiKey(): string {
   // Injected at build time via Vite .env (VITE_OPENAI_API_KEY)
   // No fallback to window/localStorage.
-  const key = (import.meta as any).env?.VITE_OPENAI_API_KEY as string | undefined
+  const key = import.meta.env.VITE_OPENAI_API_KEY as string | undefined
   return key || ''
 }
 
 export type Role = 'system' | 'user' | 'assistant'
 
 export function reasoningPayload(mode: 'fast' | 'thinking') {
-  const effort = mode === 'thinking' ? 'medium' : 'minimal'
+  const effort = mode === 'thinking' ? 'medium' : 'none'
   // Responses API requires reasoning.effort only
   return { reasoning: { effort } }
 }

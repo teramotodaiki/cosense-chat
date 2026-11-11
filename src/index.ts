@@ -1,5 +1,5 @@
-import { mountUI } from './ui'
 import { __test__ as agentAPI } from './agent'
+import { mountUI } from './ui'
 
 ;(() => {
   if (document.readyState === 'loading') {
